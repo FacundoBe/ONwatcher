@@ -25,8 +25,8 @@ export async function getBymaData() {
         credentials: "include"
     }) // ** agregar mejor control de errores al fetch y pasarlo a un custom Hook useFetch
         .then(res => res.json())
-        .then(videos => {
-            return videos
+        .then(bymaData => {
+            return bymaData
         })
         .catch(error => {
             alert("Lo lamentamos no se pudo obener las lista de cursos del servidor")
