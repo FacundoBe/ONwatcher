@@ -9,6 +9,7 @@ function App() {
 
   const [tir, setTir] = useState(0)
   const [bymaOnsData, setBymaOnsData] = useState([])
+  const [rendimientoOns, setRendimientoOns] = useState({})
 
 
 
@@ -56,16 +57,24 @@ function App() {
 
   async function getOnListTirDolares() {
 
-    const ListData = onsAAA[0].ons_hard_dollar.map(async (on) => {
-      const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar   
+ 
+    for (const on of onsAAA[0].ons_hard_dollar) {
+      const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
       const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
-      const a = await esperar(1000)
-      return {tiker:on,...onResults}
-    })
-    setTir(ListData)
+      setRendimientoOns(prev => ({...prev, tiker:{...onResults} }))
+      await esperar(500)
+    }
+
+    // const ListData = onsAAA[0].ons_hard_dollar.map(async (on) => {
+    //   const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar   
+    //   const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
+    //   const a = await esperar(1000)
+    //   return { tiker: on, ...onResults }
+    // })
+    // setTir(ListData)
   }
 
-  console.log(tir)
+  console.log(rendimientoOns)
 
 
   return (
