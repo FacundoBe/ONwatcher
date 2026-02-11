@@ -102,7 +102,7 @@ export const onsAAA = [
     empresa: "IRSA",
     sector: "Real Estate",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["IRCFO", "IRCEO", "IRCGO", "IRCHO"],
+    ons_hard_dollar: ["IRCPO", "IRCJO", "IRCLO", "IRCNO", "IRCOO", "IRCFO."],
     lamina_minima: 1
   }
 ]

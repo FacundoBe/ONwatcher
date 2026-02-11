@@ -1,6 +1,21 @@
 
 
-export async function calculaRendimientoOnPuente(tiker, precio) {
+export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR", tipoCambio = 1) {
+    // tiker de la Pn en byma 
+    // precio: Precio con coma para los decimales
+    // divisa: string con los valores ARS o DOLAR
+    // tipoCambio: si la divisa es ARS va precio del en pesos del dolar, para divisa DOLAR es 1.
+
+    // la Pagina de la calculadora de puente usa dos Api, la primera Api la llama al elegir el bono y devuelve 
+    // // informacion del bono como valor residual, paridad etc, esta info la usa cuando se usa en lso headers para llamar 
+    // // a la api que  calcula la tir 
+
+    // En estas Apis de Puente todos los tiker de busqueda tienen que estar en su vErsion en pesos (termina con O)
+    const formatedTiker = tiker.slice(0, -1) + "O";
+
+    console.log(`tiker: ${tiker}, precio: ${precio}, divisa: ${divisa}, cambio: ${tipoCambio}`)
+
+
 
     async function parseHtmlPuenteApi(respuesta) { // parse Html from puente api using charset ISO-8859-1
 
@@ -55,18 +70,39 @@ export async function calculaRendimientoOnPuente(tiker, precio) {
             // 4. Convertimos de formato "6,17" (coma) a "6.17" (punto) para que JS lo entienda como número
             tir = parseFloat(valorTexto.replace(',', '.'));
 
-            console.log("La TIR extraída es:", tir); // Resultado: 6.17
         } else {
             console.error("No se encontró la celda de TIR");
         }
         return tir;
     }
 
+    function obtenerProximoDiaHabil() {
+        let fecha = new Date(); // Fecha actual
+        let diaSemana = fecha.getDay(); // 0 (Dom) a 6 (Sab)
 
-    async function obtenerDatosBono(tiker) {
+        // Si es Viernes (5) sumamos 3 días, si es Sábado (6) sumamos 2, si no (Dom-Jue), sumamos 1
+        if (diaSemana === 5) {
+            fecha.setDate(fecha.getDate() + 3); // Saltar a Lunes
+        } else if (diaSemana === 6) {
+            fecha.setDate(fecha.getDate() + 2); // Saltar a Lunes
+        } else {
+            fecha.setDate(fecha.getDate() + 1); // Saltar a mañana
+        }
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        console.log("fecha de liquidacion", fechaFormateada)
+        return fechaFormateada;
+    }
+
+
+    async function obtenerDatosBono(formatedTiker) {
         try {
-            // 1. Hacemos la petición a la api de datos de Bonos de puente, estops datos los pide la api de calculo de rendimiento
-            const respuestaDatosBono = await fetch("api-puente/puente/actionCalculadoraBonosPublica!getDatosBono.action?idBono=BONO_IRCFO", {
+            // 1. Hacemos la petición a la api de datos de Bonos de puente, estos datos los pide la api de calculo de rendimiento
+            const respuestaDatosBono = await fetch(`api-puente/puente/actionCalculadoraBonosPublica!getDatosBono.action?idBono=BONO_${formatedTiker}`, {
                 "headers": {
                     "accept": "text/html, */*; q=0.01",
                     "accept-language": "es-ES,es;q=0.9",
@@ -93,20 +129,21 @@ export async function calculaRendimientoOnPuente(tiker, precio) {
 
             // 2. Parseamos la respuesta a un objeto DOM Html 
             const doc = await parseHtmlPuenteApi(respuestaDatosBono)
-            console.log(doc)
+
             // 3. Scrapeamos los datos que necesitamos para hacer la llamada a la Api de calculadora de bonos 
             const datosBono = await scrapeDatosBono(doc)
-            console.log(datosBono)
+            //console.log(datosBono)
             return datosBono
 
         } catch (error) {
             // Manejo de errores por si la red falla
-            console.error('Hubo un error:', error);
+            console.error(`Hubo un error obteniendo los datos del bono ${tiker} de puente.net:`, error);
         }
     }
 
-    async function apiRendimientoOn(tiker, datosBono, precio) {  // ***** FALTA poner variable al proximo dia habil al fecha de liquidacion *****
-        const url = `api-puente/puente/actionCalculadoraBonosPublica!calcular.action?calculadoraPublica=true&idCategoria=18&idBono=BONO_${tiker}&descripcionCategoria=Bonos+emitidos+por+empresas+en+Argentina&tipoCambioFormateado=${datosBono.tipoCambio}&precioFormateado=${datosBono.precio}&tirFromBono=${datosBono.tir}&paridadFormateada=${datosBono.paridad}&monedaEmision=${datosBono.moneda}&valorResidual=${datosBono.valorRresidual}&tipoCalculoSelection=precioVN&monedaPrecio=DIVISA_DOLAR&precioVN=${precio}&tipoCantidadSelection=cantidadVN&cantidadVN=100&fechaLiquidacion=03%2F02%2F2026&tipoDeCambio=1&labelTipoCambio=N%2FA`
+    async function apiRendimientoOn(formatedTiker, datosBono, precio) {
+
+        const url = `api-puente/puente/actionCalculadoraBonosPublica!calcular.action?calculadoraPublica=true&idCategoria=18&idBono=BONO_${formatedTiker}&descripcionCategoria=Bonos+emitidos+por+empresas+en+Argentina&tipoCambioFormateado=${datosBono.tipoCambio}&precioFormateado=${datosBono.precio}&tirFromBono=${datosBono.tir}&paridadFormateada=${datosBono.paridad}&monedaEmision=${datosBono.moneda}&valorResidual=${datosBono.valorRresidual}&tipoCalculoSelection=precioVN&monedaPrecio=DIVISA_${divisa}&precioVN=${precio}&tipoCantidadSelection=cantidadVN&cantidadVN=100&fechaLiquidacion=${encodeURIComponent(obtenerProximoDiaHabil())}&tipoDeCambio=${tipoCambio}&labelTipoCambio=${tipoCambio === 1 ? 'N%2FA' : 'ARS%2FUSD'}`
         try {
             // 1. Hacemos la petición a la api de calculo de Bonos de Puente
             const rendimiento = await fetch(url, {
@@ -129,6 +166,7 @@ export async function calculaRendimientoOnPuente(tiker, precio) {
                 "credentials": "include"
             });
 
+
             // 2. Parseamos la respuesta a un objeto DOM Html 
             const doc = await parseHtmlPuenteApi(rendimiento)
 
@@ -142,9 +180,9 @@ export async function calculaRendimientoOnPuente(tiker, precio) {
         }
     }
 
-    const datosBono = await obtenerDatosBono(tiker); // primero hay que obtener los datos del bono que hay que mandar a la Api de calculadora de bonos
+    const datosBono = await obtenerDatosBono(formatedTiker); // primero hay que obtener los datos del bono que hay que mandar a la Api de calculadora de bonos
     //console.log("datos Bono", datosBono)
-    const tir = await apiRendimientoOn("IRCFO", datosBono, precio)
+    const tir = await apiRendimientoOn(formatedTiker, datosBono, precio)
     //console.log("el rendimiento es de ", tir)
     return tir
 }
