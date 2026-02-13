@@ -45,7 +45,6 @@ function App() {
     if (ultimoPrecio != null) {
       const priceFormated = ultimoPrecio.toString().replaceAll(".", ",");
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
-      console.log(on, { ultimoPrecio: ultimoPrecio, vencimiento: vencimiento, tir: tir })
       return { ultimoPrecio: ultimoPrecio, vencimiento: vencimiento, tir: tir }
     }
     else console.log(`No se pudo obtener la tir de ${on}por que no se accedio al precio revisa el tiker`)
@@ -57,13 +56,15 @@ function App() {
 
   async function getOnListTirDolares() {
 
- 
+    const listaRendimientosOn = []
+    const onPorEmpresa = []
     for (const on of onsAAA[0].ons_hard_dollar) {
       const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
       const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
-      setRendimientoOns(prev => ({...prev, tiker:{...onResults} }))
+      onPorEmpresa.push({tiker:dolarTiker,...onResults})
       await esperar(500)
     }
+    setRendimientoOns(onPorEmpresa)
 
     // const ListData = onsAAA[0].ons_hard_dollar.map(async (on) => {
     //   const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar   
