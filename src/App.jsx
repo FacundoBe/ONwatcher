@@ -75,7 +75,6 @@ function App() {
 
   }
 
-  console.log(rendimientoOns)
 
 
   return (
