@@ -138,6 +138,7 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
         } catch (error) {
             // Manejo de errores por si la red falla
             console.error(`Hubo un error obteniendo los datos del bono ${tiker} de puente.net:`, error);
+            return null
         }
     }
 
@@ -182,7 +183,10 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
 
     const datosBono = await obtenerDatosBono(formatedTiker); // primero hay que obtener los datos del bono que hay que mandar a la Api de calculadora de bonos
     //console.log("datos Bono", datosBono)
-    const tir = await apiRendimientoOn(formatedTiker, datosBono, precio)
+    let tir = 0
+    if (datosBono) {  // si no se obtubo los datos del bono no se puede llamar a la api d erendimiento sin datos o daria error
+        tir = await apiRendimientoOn(formatedTiker, datosBono, precio)
+    }
     //console.log("el rendimiento es de ", tir)
     return tir
 }

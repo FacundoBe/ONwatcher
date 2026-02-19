@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { getBymaData } from './services/onData'
 import { calculaRendimientoOnPuente } from './services/calculadoraOnPuente'
-import { onsAAA } from './JSONS/OnsAAA'
+import { onsAAA, resultsOn } from './JSONS/OnsAAA'
+import CurvaRendimiento from './CurvaRendimiento'
 import './App.css'
 
 function App() {
@@ -39,13 +40,16 @@ function App() {
 
   async function getPriceTirDuration(on, divisa, tipoCambio) {
     // divisa: (string) `las opciones validas son ARS o DOLAR 
-    const { ultimoPrecio, vencimiento } = await obtenerPrecioYDurationDelaOn(on)
+    const resultado = await obtenerPrecioYDurationDelaOn(on)
+    if (!resultado) return // early return if the the on info is not found 
+    const { ultimoPrecio, precioCompra, vencimiento } = resultado
     //console.log("Ultimo Precio", ultimoPrecio)
 
     if (ultimoPrecio != null) {
+      if (ultimoPrecio === 0) return  // early return for prize zero yhay will hive 500 error on puente calculator API
       const priceFormated = ultimoPrecio.toString().replaceAll(".", ",");
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
-      return { ultimoPrecio: ultimoPrecio, vencimiento: vencimiento, tir: tir }
+      return { ultimoPrecio: (ultimoPrecio ? ultimoPrecio : precioCompra), vencimiento: vencimiento, tir: tir } // si ultimoprecio es 0 usa el precio de compra
     }
     else console.log(`No se pudo obtener la tir de ${on}por que no se accedio al precio revisa el tiker`)
   }
@@ -57,22 +61,18 @@ function App() {
   async function getOnListTirDolares() {
 
     const listaRendimientosOn = []
-    const onPorEmpresa = []
-    for (const on of onsAAA[0].ons_hard_dollar) {
-      const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
-      const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
-      onPorEmpresa.push({tiker:dolarTiker,...onResults})
-      await esperar(500)
+    for (const empresa of onsAAA) {
+      const onPorEmpresa = []
+      for (const on of empresa.ons_hard_dollar) {
+        const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
+        const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
+        onPorEmpresa.push({ tiker: dolarTiker, ...onResults })
+        await esperar(500)
+      }
+      listaRendimientosOn.push({[empresa.empresa]:onPorEmpresa})
     }
-    setRendimientoOns(onPorEmpresa)
+    setRendimientoOns(listaRendimientosOn)
 
-    // const ListData = onsAAA[0].ons_hard_dollar.map(async (on) => {
-    //   const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar   
-    //   const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
-    //   const a = await esperar(1000)
-    //   return { tiker: on, ...onResults }
-    // })
-    // setTir(ListData)
   }
 
   console.log(rendimientoOns)
@@ -87,6 +87,7 @@ function App() {
       <button type='button' className="manage-history-buttons" onClick={() => obtenerDatosDeByma()} >Obtener Datos Ons de BYMA </button>
       <br />
       <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir </button>
+      <CurvaRendimiento datos={resultsOn} />
 
     </>
   )
