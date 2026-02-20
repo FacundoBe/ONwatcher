@@ -9,23 +9,22 @@ import './App.css'
 function App() {
 
   const [tir, setTir] = useState(0)
-  const [bymaOnsData, setBymaOnsData] = useState([])
   const [rendimientoOns, setRendimientoOns] = useState({})
 
 
 
   async function obtenerDatosDeByma() {
-    getBymaData()
-      .then(bymaData => {
-        console.log("logueando", bymaData)
-        if (bymaData.length > 0) setBymaOnsData(bymaData)
-        else console.log("No se pudo obtener los datos de precios y volumenes de BYMA")
-      }
-      )
+
+    const bymaData = await getBymaData()
+
+    if (bymaData.length > 0) console.log(" Datos obtenidos  de BYMA ...", bymaData)
+    else console.log("No se pudo obtener los datos de precios y volumenes de BYMA")
+
+    return bymaData
   }
 
 
-  function obtenerPrecioYDurationDelaOn(on) {
+  function obtenerPrecioYDurationDelaOn(bymaOnsData, on) {
     // on es un String con el tiker de la obligacion negociable de la ON que se desea obtener los precios 
     const onData = bymaOnsData.filter(papel => papel?.symbol === on)[0]
     if (onData?.trade != undefined) {
@@ -38,18 +37,19 @@ function App() {
 
 
 
-  async function getPriceTirDuration(on, divisa, tipoCambio) {
+  async function getPriceTirDuration(bymaOnsData, on, divisa, tipoCambio) {
     // divisa: (string) `las opciones validas son ARS o DOLAR 
-    const resultado = await obtenerPrecioYDurationDelaOn(on)
+    const resultado = obtenerPrecioYDurationDelaOn(bymaOnsData, on)
     if (!resultado) return // early return if the the on info is not found 
-    const { ultimoPrecio, precioCompra, vencimiento } = resultado
+    const { ultimoPrecio, precioVenta, vencimiento } = resultado
     //console.log("Ultimo Precio", ultimoPrecio)
 
-    if (ultimoPrecio != null) {
-      if (ultimoPrecio === 0) return  // early return for prize zero yhay will hive 500 error on puente calculator API
-      const priceFormated = ultimoPrecio.toString().replaceAll(".", ",");
+  
+    if (ultimoPrecio != null) {   // if it is null there was no data avaliable from byma for this tiker
+      if (ultimoPrecio === 0 && precioVenta === 0) return  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
+      const priceFormated = (ultimoPrecio ? ultimoPrecio : precioVenta).toString().replaceAll(".", ","); // if ultimoPrecio = 0 usa precioVenta para el precio
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
-      return { ultimoPrecio: (ultimoPrecio ? ultimoPrecio : precioCompra), vencimiento: vencimiento, tir: tir } // si ultimoprecio es 0 usa el precio de compra
+      return { ultimoPrecio: (ultimoPrecio ? ultimoPrecio : precioVenta), vencimiento: vencimiento, tir: tir } // si ultimoprecio es 0 usa el precio de compra
     }
     else console.log(`No se pudo obtener la tir de ${on}por que no se accedio al precio revisa el tiker`)
   }
@@ -60,33 +60,38 @@ function App() {
 
   async function getOnListTirDolares() {
 
-    const listaRendimientosOn = []
-    for (const empresa of onsAAA) {
-      const onPorEmpresa = []
-      for (const on of empresa.ons_hard_dollar) {
-        const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
-        const onResults = await getPriceTirDuration(dolarTiker, "DOLAR", 1)
-        onPorEmpresa.push({ tiker: dolarTiker, ...onResults })
-        await esperar(500)
+    const bymaOnsData = await obtenerDatosDeByma() // obtiene los precios y vencimientos de todas las ONs de la pagina de BymaData
+    if (bymaOnsData.length > 0) {
+      const listaRendimientosOn = []
+      for (const empresa of onsAAA) {
+        const onPorEmpresa = []
+        for (const on of empresa.ons_hard_dollar) {
+          const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
+          const onResults = await getPriceTirDuration(bymaOnsData, dolarTiker, "DOLAR", 1)
+          onPorEmpresa.push({ tiker: dolarTiker, ...onResults })
+          await esperar(500)
+        }
+        listaRendimientosOn.push({ [empresa.empresa]: onPorEmpresa })
       }
-      listaRendimientosOn.push({[empresa.empresa]:onPorEmpresa})
+      setRendimientoOns(listaRendimientosOn)
     }
-    setRendimientoOns(listaRendimientosOn)
-
+    else console.log("No se pudo obtener los datos de mercado de las ON de BYMA")
   }
+  console.log(rendimientoOns)
 
-
+  async function test() {
+    const res = await calculaRendimientoOnPuente('YFCMO', "101", 'DOLAR', 1) //getPriceTirDuration('YFCMD', 'DOLAR', 1)
+    console.log("prueba: ", res)
+  }
 
   return (
     <>
 
-      <p className="read-the-docs">
-        {`Tir  %    `}
+      <p>
+        Rendimientos ON empresas triple calificación AAA
       </p>
-      <button type='button' className="manage-history-buttons" onClick={() => obtenerDatosDeByma()} >Obtener Datos Ons de BYMA </button>
-      <br />
-      <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir </button>
-      <CurvaRendimiento datos={resultsOn} />
+      <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir ON en dolares </button>
+      <CurvaRendimiento datos={rendimientoOns} />
 
     </>
   )

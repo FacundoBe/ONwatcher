@@ -5,6 +5,11 @@
   text-align: center;
 }
 
-.read-the-docs {
+p {
   color: #888;
+  font-size: 18px;
+}
+
+button {
+  margin-bottom: 1em;
 }

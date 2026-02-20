@@ -76,17 +76,17 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
         return tir;
     }
 
-    function obtenerProximoDiaHabil() {
+    function obtenerProximoDiaHabil() { // para que ande bien la Api el dia tiene que ser al menos el siguiente al de la consulta asi que le sumo 2 al habil
         let fecha = new Date(); // Fecha actual
         let diaSemana = fecha.getDay(); // 0 (Dom) a 6 (Sab)
 
         // Si es Viernes (5) sumamos 3 días, si es Sábado (6) sumamos 2, si no (Dom-Jue), sumamos 1
         if (diaSemana === 5) {
-            fecha.setDate(fecha.getDate() + 3); // Saltar a Lunes
+            fecha.setDate(fecha.getDate() + 3 + 2); // Saltar a Lunes
         } else if (diaSemana === 6) {
-            fecha.setDate(fecha.getDate() + 2); // Saltar a Lunes
+            fecha.setDate(fecha.getDate() + 2 + 2); // Saltar a Lunes
         } else {
-            fecha.setDate(fecha.getDate() + 1); // Saltar a mañana
+            fecha.setDate(fecha.getDate() + 1 + 2); // Saltar a mañana
         }
         const fechaFormateada = fecha.toLocaleDateString('es-ES', {
             day: '2-digit',
@@ -170,7 +170,7 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
 
             // 2. Parseamos la respuesta a un objeto DOM Html 
             const doc = await parseHtmlPuenteApi(rendimiento)
-
+           // console.log(doc)
             // 3. Scrapeamos los datos que necesitamos para hacer la llamada a la Api de calculadora de bonos 
             const tir = await scrapeRendimiento(doc)
             return tir

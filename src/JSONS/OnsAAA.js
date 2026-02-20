@@ -3,7 +3,7 @@ export const onsAAA = [
     empresa: "Pampa Energía",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["MGCEO","MGCMO", "MGCNO", "MGCOO", "MGCQO"],
+    ons_hard_dollar: ["MGCMO", "MGCNO", "MGCOO", "MGCQO"],
     lamina_minima: 1
   },
   {

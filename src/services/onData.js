@@ -31,6 +31,7 @@ export async function getBymaData() {
         .catch(error => {
             alert("Lo lamentamos no se pudo obener las lista de cursos del servidor")
             console.log(error.message)
+            return []
         })
 }
 
