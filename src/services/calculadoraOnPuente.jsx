@@ -13,7 +13,7 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
     // En estas Apis de Puente todos los tiker de busqueda tienen que estar en su vErsion en pesos (termina con O)
     const formatedTiker = tiker.slice(0, -1) + "O";
 
-    console.log(`tiker: ${tiker}, precio: ${precio}, divisa: ${divisa}, cambio: ${tipoCambio}`)
+    //console.log(`tiker: ${tiker}, precio: ${precio}, divisa: ${divisa}, cambio: ${tipoCambio}`)
 
 
 
@@ -94,7 +94,7 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
             year: 'numeric'
         });
 
-        console.log("fecha de liquidacion", fechaFormateada)
+        //console.log("fecha de liquidacion", fechaFormateada)
         return fechaFormateada;
     }
 

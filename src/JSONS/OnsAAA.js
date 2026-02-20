@@ -25,7 +25,7 @@ export const onsAAA = [
     empresa: "Pan American Energy (PAE)",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["PN34O", "PN35O","PN36O", "PN37O", "PAN38O", "PN41O", "PN42O", "PN43O", "PNXCO", "PNXCD", ],
+    ons_hard_dollar: ["PN34O", "PN35O","PN36O", "PN37O", "PN38O", "PN41O", "PN42O", "PN43O", "PNXCO", "PNXCD", ],
     lamina_minima: 1
   },
   {
@@ -88,7 +88,7 @@ export const onsAAA = [
     empresa: "Banco Macro",
     sector: "Financiero",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["BMCGO", "BACHO",],
+    ons_hard_dollar: ["BACGO", "BACHO",],
     lamina_minima: 1
   },
   {
@@ -102,7 +102,7 @@ export const onsAAA = [
     empresa: "IRSA",
     sector: "Real Estate",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["IRCPO", "IRCJO", "IRCLO", "IRCNO", "IRCOO", "IRCFO."],
+    ons_hard_dollar: ["IRCPO", "IRCJO", "IRCLO", "IRCNO", "IRCOO", "IRCFO"],
     lamina_minima: 1
   }
 ]
