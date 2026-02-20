@@ -92,9 +92,6 @@ function App() {
   return (
     <>
 
-      <p>
-        Rendimientos ON empresas triple calificación AAA
-      </p>
       <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir ON en dolares </button>
       {cargando ? <SkeletonCurva /> : <CurvaRendimiento datos={rendimientoOns} />}
  

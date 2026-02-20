@@ -15,6 +15,24 @@ const CurvaRendimiento = ({ datos }) => {
 
   const opcionesAnios = [1, 2, 3, 4, 5, 6];
 
+  const chartColors = [
+  "#3366CC", // Azul Real
+  "#DC3912", // Rojo Bermellón
+  "#FF9900", // Naranja Intenso
+  "#109618", // Verde Bosque
+  "#990099", // Púrpura
+  "#3B3EAC", // Indigo
+  "#0099C6", // Turquesa
+  "#DD4477", // Rosa Fuerte
+  "#66AA00", // Lima
+  "#B82E2E", // Ladrillo
+  "#316395", // Azul Acero
+  "#994499", // Amatista
+  "#22AA99", // Verde Agua
+  "#AAAA11", // Oliva Dorado
+  "#6633CC"  // Violeta Profundo
+];
+
   const handleAgregarManual = () => {
     if (!inputEmpresa.trim() || !inputTicker.trim() || !inputTir || !inputDias) {
       alert("Por favor, completa todos los campos.");
@@ -66,19 +84,19 @@ const CurvaRendimiento = ({ datos }) => {
 
   const { dataProcesada, descartados } = useMemo(() => {
     if (!datosCombinados || !Array.isArray(datosCombinados)) return { dataProcesada: [], descartados: [] };
-    
+
     const limiteMeses = maxMeses ? maxMeses : Infinity;
     const listaDescartados = [];
 
     const procesados = datosCombinados.map((obj, index) => {
       const nombreEmpresa = Object.keys(obj)[0];
       const listaOriginal = obj[nombreEmpresa];
-      
+
       // Si la empresa no está seleccionada, no procesamos puntos pero SÍ podemos detectar descartados
       const estaFiltrada = empresasSeleccionadas.length > 0 && !empresasSeleccionadas.includes(nombreEmpresa);
 
       const puntosValidos = [];
-      
+
       listaOriginal.forEach(on => {
         const esValido = on && typeof on.vencimiento === 'number' && typeof on.tir === 'number' && on.tir > 0;
 
@@ -89,7 +107,8 @@ const CurvaRendimiento = ({ datos }) => {
               puntosValidos.push({
                 ...on,
                 plazoEje: unidadPlazo === 'meses' ? parseFloat(meses.toFixed(1)) : parseFloat((meses / 12).toFixed(2)),
-                mesesOriginal: meses
+                mesesOriginal: meses,
+                empresa: nombreEmpresa,
               });
             }
           }
@@ -107,7 +126,7 @@ const CurvaRendimiento = ({ datos }) => {
       return {
         nombre: nombreEmpresa,
         puntos: puntosValidos.sort((a, b) => a.plazoEje - b.plazoEje),
-        color: `hsl(${(index * 137) % 360}, 70%, 50%)`
+        color: chartColors[index % chartColors.length]
       };
     }).filter(empresa => empresa !== null && empresa.puntos.length > 0);
 
@@ -119,9 +138,11 @@ const CurvaRendimiento = ({ datos }) => {
       const data = payload[0].payload;
       return (
         <div style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-          <p style={{ margin: '0 0 5px', fontWeight: 'bold', color: '#333' }}>{data.tiker}</p>
+          <p style={{ margin: '0 0 5px', fontWeight: 'bold', color: '#333' }}>{data.tiker} </p>
+         <p style={{ margin: '0', fontSize: '13px' }}> ({data.empresa}) </p>
           <p style={{ margin: '0', fontSize: '13px' }}>Vencimiento: {data.plazoEje} {unidadPlazo}</p>
           <p style={{ margin: '0', fontSize: '13px' }}>TIR: <strong>{data.tir}%</strong></p>
+          <p style={{ margin: '0', fontSize: '13px' }}>Precio: <strong>{data.ultimoPrecio}</strong></p>
         </div>
       );
     }
@@ -133,37 +154,15 @@ const CurvaRendimiento = ({ datos }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: '#fcfcfc', padding: '20px', borderRadius: '12px', fontFamily: 'sans-serif' }}>
-      
-      {/* Panel de Carga Manual */}
-      <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#f4f7f6', borderRadius: '8px', border: '1px solid #e1e5e8' }}>
-        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#333' }}>➕ Agregar ON Manualmente</h4>
-        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '15px' }}>
-          <div><label style={labelStyle}>Empresa</label><input style={inputStyle} value={inputEmpresa} onChange={e => setInputEmpresa(e.target.value)} placeholder="YPF" /></div>
-          <div><label style={labelStyle}>Ticker</label><input style={inputStyle} value={inputTicker} onChange={e => setInputTicker(e.target.value)} placeholder="YCA6O" /></div>
-          <div><label style={labelStyle}>TIR (%)</label><input style={inputStyle} type="number" value={inputTir} onChange={e => setInputTir(e.target.value)} placeholder="8.5" /></div>
-          <div><label style={labelStyle}>Venc. (Días)</label><input style={inputStyle} type="number" value={inputDias} onChange={e => setInputDias(e.target.value)} placeholder="365" /></div>
-          <button onClick={handleAgregarManual} style={{ padding: '7px 15px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Agregar</button>
-        </div>
 
-        {datosManuales.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-            {datosManuales.map(on => (
-              <div key={on.id} style={{ fontSize: '12px', backgroundColor: '#fff', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{  color: 'black'}}><strong>{on.data.tiker}</strong> ({on.empresa})</span>
-                <button onClick={() => handleEliminarManual(on.id)} style={{ border: 'none', background: '#ff4d4f', color: 'white', borderRadius: '50%', width: '18px', height: '18px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* Panel de Controles */}
       <div style={{ display: 'flex', gap: '30px', marginBottom: '25px', flexWrap: 'wrap' }}>
         <div>
           <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Eje X en:</p>
           <div style={{ display: 'flex', background: '#eee', borderRadius: '8px', padding: '3px', color: '#222222' }}>
-            <button onClick={() => setUnidadPlazo('meses')} style={{color:  unidadPlazo === 'meses' ? '#262626' : '#6b6a6a', padding: '5px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer', backgroundColor: unidadPlazo === 'meses' ? '#fff' : 'transparent', fontWeight: unidadPlazo === 'meses' ? 'bold' : 'normal' }}>Meses</button>
-            <button onClick={() => setUnidadPlazo('años')} style={{ color: unidadPlazo === 'meses' ? '#6b6a6a':'#262626'  , padding: '5px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer', backgroundColor: unidadPlazo === 'años' ? '#fff' : 'transparent', fontWeight: unidadPlazo === 'años' ? 'bold' : 'normal' }}>Años</button>
+            <button onClick={() => setUnidadPlazo('meses')} style={{ color: unidadPlazo === 'meses' ? '#262626' : '#6b6a6a', padding: '5px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer', backgroundColor: unidadPlazo === 'meses' ? '#fff' : 'transparent', fontWeight: unidadPlazo === 'meses' ? 'bold' : 'normal' }}>Meses</button>
+            <button onClick={() => setUnidadPlazo('años')} style={{ color: unidadPlazo === 'meses' ? '#6b6a6a' : '#262626', padding: '5px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer', backgroundColor: unidadPlazo === 'años' ? '#fff' : 'transparent', fontWeight: unidadPlazo === 'años' ? 'bold' : 'normal' }}>Años</button>
           </div>
         </div>
 
@@ -188,14 +187,14 @@ const CurvaRendimiento = ({ datos }) => {
       </div>
 
       {/* Gráfico */}
-      <div style={{ width: '100%', height: '450px' }}>
+      <div style={{ width: '100%', height: '650px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 30, bottom: 40, left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-            <XAxis type="number" dataKey="plazoEje" name="Plazo" unit={unidadPlazo === 'meses' ? ' m' : ' a'} domain={[0, 'auto']} />
-            <YAxis type="number" dataKey="tir" name="TIR" unit="%" domain={['auto', 'auto']} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#838282d8" />
+            <XAxis type="number" dataKey="plazoEje" name="Plazo" unit={unidadPlazo === 'meses' ? ' m' : ' a'} domain={[0, dataMax =>  (1.05*dataMax)]} />
+            <YAxis type="number" dataKey="tir" name="TIR" unit="%" domain={['dataMin', 'dataMax ']} />
             <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-            <Legend verticalAlign="top" height={50} />
+            <Legend verticalAlign="top" height={90} />
             {dataProcesada.map((empresa) => (
               <Scatter key={empresa.nombre} name={empresa.nombre} data={empresa.puntos} fill={empresa.color} line={{ stroke: empresa.color, strokeWidth: 2 }} shape="circle" />
             ))}
@@ -205,12 +204,12 @@ const CurvaRendimiento = ({ datos }) => {
 
       {/* --- SECCIÓN RESTAURADA: ONs Descartadas --- */}
       {descartados.length > 0 && (
-        <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <h4 style={{ color: '#888', fontSize: '14px', marginBottom: '15px' }}>ONs no incluidas (TIR ≤ 0 o datos incompletos):</h4>
+        <div style={{ marginTop: '5px',marginBottom: '30px', borderTop: '1px solid #eee' }}>
+          <h4 style={{ color: '#888', fontSize: '14px', marginBottom: '15px',textAlign: 'start' }}>ONs no incluidas (TIR ≤ 0 o datos incompletos):</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {descartados.map((on, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 title={on.razon}
                 style={{ fontSize: '11px', backgroundColor: '#fdecea', color: '#d93025', padding: '4px 8px', borderRadius: '4px', border: '1px solid #fad2cf' }}
               >
@@ -220,7 +219,29 @@ const CurvaRendimiento = ({ datos }) => {
           </div>
         </div>
       )}
-    </div>
+      {/* Panel de Carga Manual */}
+      <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#f4f7f6', borderRadius: '8px', border: '1px solid #e1e5e8' }}>
+        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#333', textAlign: 'start' }}>➕ Agregar ON Manualmente</h4>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '15px' }}>
+          <div><label style={labelStyle}>Empresa</label><input style={inputStyle} value={inputEmpresa} onChange={e => setInputEmpresa(e.target.value)} placeholder="YPF" /></div>
+          <div><label style={labelStyle}>Ticker</label><input style={inputStyle} value={inputTicker} onChange={e => setInputTicker(e.target.value)} placeholder="YCA6O" /></div>
+          <div><label style={labelStyle}>TIR (%)</label><input style={inputStyle} type="number" value={inputTir} onChange={e => setInputTir(e.target.value)} placeholder="8.5" /></div>
+          <div><label style={labelStyle}>Venc. (Días)</label><input style={inputStyle} type="number" value={inputDias} onChange={e => setInputDias(e.target.value)} placeholder="365" /></div>
+          <button onClick={handleAgregarManual} style={{ marginBottom: 0, padding: '7px 15px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Agregar</button>
+        </div>
+
+        {datosManuales.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+            {datosManuales.map(on => (
+              <div key={on.id} style={{ fontSize: '12px', backgroundColor: '#fff', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: 'black' }}><strong>{on.data.tiker}</strong> ({on.empresa})</span>
+                <button onClick={() => handleEliminarManual(on.id)} style={{ border: 'none', background: '#ff4d4f', color: 'white', borderRadius: '50%', width: '18px', height: '18px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div >
   );
 };
 
