@@ -5,13 +5,16 @@ import { calculaRendimientoOnPuente } from './services/calculadoraOnPuente'
 import { onsAAA, resultsOn } from './JSONS/OnsAAA'
 import CurvaRendimiento from './CurvaRendimiento'
 import './App.css'
+import SkeletonCurva from './SkeletonCurva'
 
 function App() {
 
-  const [tir, setTir] = useState(0)
-  const [rendimientoOns, setRendimientoOns] = useState({})
+  const [cargando, setCargando] = useState(false)
+  const [rendimientoOns, setRendimientoOns] = useState([])
 
-
+  useEffect(() => {
+  if(rendimientoOns.length > 0) setCargando(false)
+  }, [rendimientoOns])
 
   async function obtenerDatosDeByma() {
 
@@ -43,9 +46,9 @@ function App() {
     if (!resultado) return // early return if the the on info is not found 
     const { ultimoPrecio, precioVenta, vencimiento } = resultado
     //console.log("Ultimo Precio", ultimoPrecio)
-  
+
     if (ultimoPrecio != null) {   // if it is null there was no data avaliable from byma for this tiker
-      if (ultimoPrecio === 0 && precioVenta === 0) {console.log(`El precio de la ${on} de BYMA es 0`); return}  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
+      if (ultimoPrecio === 0 && precioVenta === 0) { console.log(`El precio de la ${on} de BYMA es 0`); return }  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
       const priceFormated = (ultimoPrecio ? ultimoPrecio : precioVenta).toString().replaceAll(".", ","); // if ultimoPrecio = 0 usa precioVenta para el precio
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
       return { ultimoPrecio: (ultimoPrecio ? ultimoPrecio : precioVenta), vencimiento: vencimiento, tir: tir } // si ultimoprecio es 0 usa el precio de compra
@@ -60,7 +63,8 @@ function App() {
 
 
   async function getOnListTirDolares() {
-
+    setRendimientoOns([]) // clean previous on data
+    setCargando(true)
     const bymaOnsData = await obtenerDatosDeByma() // obtiene los precios y vencimientos de todas las ONs de la pagina de BymaData
     if (bymaOnsData.length > 0) {
       const listaRendimientosOn = []
@@ -92,7 +96,8 @@ function App() {
         Rendimientos ON empresas triple calificación AAA
       </p>
       <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir ON en dolares </button>
-      <CurvaRendimiento datos={rendimientoOns} />
+      {cargando ? <SkeletonCurva /> : <CurvaRendimiento datos={rendimientoOns} />}
+ 
 
     </>
   )

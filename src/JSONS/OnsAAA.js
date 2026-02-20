@@ -74,14 +74,14 @@ export const onsAAA = [
     empresa: "Loma Negra",
     sector: "Industria y Construcción",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["LOC4O", "LOC5O", "LOC6O"],
+    ons_hard_dollar: [ "LOC5O", "LOC6O"],
     lamina_minima: 1
   },
   {
     empresa: "Aluar",
     sector: "Industria",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["LMS7O", "LMS8O", "LMS9O"],
+    ons_hard_dollar: ["LMS7O", "LMS8O"],
     lamina_minima: 1
   },
   {
