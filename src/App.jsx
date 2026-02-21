@@ -6,6 +6,8 @@ import { onsAAA, resultsOn } from './JSONS/OnsAAA'
 import CurvaRendimiento from './CurvaRendimiento'
 import './App.css'
 import SkeletonCurva from './SkeletonCurva'
+import obtenerDolarMep from './services/dolarMep'
+import { formatearMoneda } from './UTILS/formatearMonedaArg'
 
 function App() {
 
@@ -13,7 +15,7 @@ function App() {
   const [rendimientoOns, setRendimientoOns] = useState([])
 
   useEffect(() => {
-  if(rendimientoOns.length > 0) setCargando(false)
+    if (rendimientoOns.length > 0) setCargando(false)
   }, [rendimientoOns])
 
   async function obtenerDatosDeByma() {
@@ -82,6 +84,33 @@ function App() {
     }
     else console.log("No se pudo obtener los datos de mercado de las ON de BYMA")
   }
+
+
+  async function getOnListTirPesos() {
+    setRendimientoOns([]) // clean previous on data
+    setCargando(true)
+    const bymaOnsData = await obtenerDatosDeByma() // obtiene los precios y vencimientos de todas las ONs de la pagina de BymaData
+    if (bymaOnsData.length > 0) {
+      const dolarMep = await obtenerDolarMep()  // obtengo la cotizacion actual del dolar mep
+      const dolarMepFormateado = formatearMoneda(dolarMep)
+      console.log(dolarMepFormateado)
+      if (!dolarMep) {console.log("no se pudo obtener la cotizacion de dolar Mep de dolarApi"); return} //early return if dolarApi call fails
+      const listaRendimientosOn = []
+      for (const empresa of onsAAA) {
+        const onPorEmpresa = []
+        for (const on of empresa.ons_hard_dollar) {
+          const onResults = await getPriceTirDuration(bymaOnsData, on, "ARS", dolarMepFormateado)
+          onPorEmpresa.push({ tiker: on, ...onResults })
+          await esperar(500)
+        }
+        listaRendimientosOn.push({ [empresa.empresa]: onPorEmpresa })
+      }
+      setRendimientoOns(listaRendimientosOn)
+    }
+    else console.log("No se pudo obtener los datos de mercado de las ON de BYMA")
+  }
+
+
   console.log(rendimientoOns)
 
   async function test() {
@@ -93,8 +122,9 @@ function App() {
     <>
 
       <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir ON en dolares </button>
+      <button type='button' className="manage-history-buttons" onClick={() => getOnListTirPesos()} > Calculate Tir ON en Pesos </button>
       {cargando ? <SkeletonCurva /> : <CurvaRendimiento datos={rendimientoOns} />}
- 
+
 
     </>
   )

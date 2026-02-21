@@ -1,16 +1,17 @@
-
+/** 
+ * @param {string} tiker de la On en byma 
+ * @param {number}  precio: Precio con coma para los decimales
+ * @param {string}  divisa: string con los valores "ARS" o "DOLAR"
+ * tipoCambio: si la divisa es ARS va precio del en pesos del dolar, para divisa DOLAR es 1. */
 
 export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR", tipoCambio = 1) {
-    // tiker de la Pn en byma 
-    // precio: Precio con coma para los decimales
-    // divisa: string con los valores ARS o DOLAR
-    // tipoCambio: si la divisa es ARS va precio del en pesos del dolar, para divisa DOLAR es 1.
+
 
     // la Pagina de la calculadora de puente usa dos Api, la primera Api la llama al elegir el bono y devuelve 
     // // informacion del bono como valor residual, paridad etc, esta info la usa cuando se usa en lso headers para llamar 
     // // a la api que  calcula la tir 
 
-    // En estas Apis de Puente todos los tiker de busqueda tienen que estar en su vErsion en pesos (termina con O)
+    // En estas Apis de Puente todos los tiker de busqueda tienen que estar en su version en pesos (termina con O)
     const formatedTiker = tiker.slice(0, -1) + "O";
 
     console.log(`tiker: ${tiker}, precio: ${precio}, divisa: ${divisa}, cambio: ${tipoCambio}`)
@@ -144,7 +145,7 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
 
     async function apiRendimientoOn(formatedTiker, datosBono, precio) {
 
-        const url = `api-puente/puente/actionCalculadoraBonosPublica!calcular.action?calculadoraPublica=true&idCategoria=18&idBono=BONO_${formatedTiker}&descripcionCategoria=Bonos+emitidos+por+empresas+en+Argentina&tipoCambioFormateado=${datosBono.tipoCambio}&precioFormateado=${datosBono.precio}&tirFromBono=${datosBono.tir}&paridadFormateada=${datosBono.paridad}&monedaEmision=${datosBono.moneda}&valorResidual=${datosBono.valorRresidual}&tipoCalculoSelection=precioVN&monedaPrecio=DIVISA_${divisa}&precioVN=${precio}&tipoCantidadSelection=cantidadVN&cantidadVN=100&fechaLiquidacion=${encodeURIComponent(obtenerProximoDiaHabil())}&tipoDeCambio=${tipoCambio}&labelTipoCambio=${tipoCambio === 1 ? 'N%2FA' : 'ARS%2FUSD'}`
+        const url = `api-puente/puente/actionCalculadoraBonosPublica!calcular.action?calculadoraPublica=true&idCategoria=18&idBono=BONO_${formatedTiker}&descripcionCategoria=Bonos+emitidos+por+empresas+en+Argentina&tipoCambioFormateado=${datosBono.tipoCambio}&precioFormateado=${datosBono.precio}&tirFromBono=${datosBono.tir}&paridadFormateada=${datosBono.paridad}&monedaEmision=${datosBono.moneda}&valorResidual=${datosBono.valorRresidual}&tipoCalculoSelection=precioVN&monedaPrecio=DIVISA_${divisa}&precioVN=${precio}&tipoCantidadSelection=cantidadVN&cantidadVN=100&fechaLiquidacion=${encodeURIComponent(obtenerProximoDiaHabil())}&tipoDeCambio=${encodeURIComponent(tipoCambio)}&labelTipoCambio=${tipoCambio === 1 ? 'N%2FA' : 'ARS%2FUSD'}`
         try {
             // 1. Hacemos la petición a la api de calculo de Bonos de Puente
             const rendimiento = await fetch(url, {
@@ -170,7 +171,7 @@ export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR"
 
             // 2. Parseamos la respuesta a un objeto DOM Html 
             const doc = await parseHtmlPuenteApi(rendimiento)
-           // console.log(doc)
+            // console.log(doc)
             // 3. Scrapeamos los datos que necesitamos para hacer la llamada a la Api de calculadora de bonos 
             const tir = await scrapeRendimiento(doc)
             return tir

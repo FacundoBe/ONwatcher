@@ -191,7 +191,7 @@ const CurvaRendimiento = ({ datos }) => {
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 30, bottom: 40, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#838282d8" />
-            <XAxis type="number" dataKey="plazoEje" name="Plazo" unit={unidadPlazo === 'meses' ? ' m' : ' a'} domain={[0, dataMax =>  (1.05*dataMax)]} />
+            <XAxis type="number" dataKey="plazoEje" name="Plazo" unit={unidadPlazo === 'meses' ? ' m' : ' a'} domain={[0, dataMax =>  (Math.round(1.05*dataMax * 100) / 100)]} />
             <YAxis type="number" dataKey="tir" name="TIR" unit="%" domain={['dataMin', 'dataMax ']} />
             <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
             <Legend verticalAlign="top" height={90} />
