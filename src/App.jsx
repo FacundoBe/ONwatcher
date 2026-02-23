@@ -8,14 +8,19 @@ import './App.css'
 import SkeletonCurva from './SkeletonCurva'
 import obtenerDolarMep from './services/dolarMep'
 import { formatearMoneda } from './UTILS/formatearMonedaArg'
+import PriceToggle from './PriceToggle'
 
 function App() {
 
   const [cargando, setCargando] = useState(false)
+  const [cargandoPesos, setCargandoPesos] = useState(false)
   const [rendimientoOns, setRendimientoOns] = useState([])
+  const [rendimientoOnsPesos, setRendimientoOnsPesos] = useState([])
+  const [tipoPrecio, setTipoPrecio] = useState("ultimo precio")
 
   useEffect(() => {
     if (rendimientoOns.length > 0) setCargando(false)
+    if (rendimientoOnsPesos.length > 0) setCargandoPesos(false)
   }, [rendimientoOns])
 
   async function obtenerDatosDeByma() {
@@ -27,6 +32,7 @@ function App() {
 
     return bymaData
   }
+
 
 
   function obtenerPrecioYDurationDelaOn(bymaOnsData, on) {
@@ -51,9 +57,10 @@ function App() {
 
     if (ultimoPrecio != null) {   // if it is null there was no data avaliable from byma for this tiker
       if (ultimoPrecio === 0 && precioVenta === 0) { console.log(`El precio de la ${on} de BYMA es 0`); return }  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
-      const priceFormated = (ultimoPrecio ? ultimoPrecio : precioVenta).toString().replaceAll(".", ","); // if ultimoPrecio = 0 usa precioVenta para el precio
+      const price = (tipoPrecio === 'ultimo precio' ? ultimoPrecio : precioVenta)
+      const priceFormated = price.toString().replaceAll(".", ","); 
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
-      return { ultimoPrecio: (ultimoPrecio ? ultimoPrecio : precioVenta), vencimiento: vencimiento, tir: tir } // si ultimoprecio es 0 usa el precio de compra
+      return { precio: price, vencimiento: vencimiento, tir: tir } 
     }
     else console.log(`No se pudo obtener la tir de ${on}por que no se accedio al precio revisa el tiker`)
   }
@@ -76,7 +83,7 @@ function App() {
           const dolarTiker = on.slice(0, -1) + "D" // paso los tiker a dolar
           const onResults = await getPriceTirDuration(bymaOnsData, dolarTiker, "DOLAR", 1)
           onPorEmpresa.push({ tiker: dolarTiker, ...onResults })
-          await esperar(500)
+          await esperar(250)
         }
         listaRendimientosOn.push({ [empresa.empresa]: onPorEmpresa })
       }
@@ -87,14 +94,14 @@ function App() {
 
 
   async function getOnListTirPesos() {
-    setRendimientoOns([]) // clean previous on data
-    setCargando(true)
+    setRendimientoOnsPesos([]) // clean previous on data
+    setCargandoPesos(true)
     const bymaOnsData = await obtenerDatosDeByma() // obtiene los precios y vencimientos de todas las ONs de la pagina de BymaData
     if (bymaOnsData.length > 0) {
       const dolarMep = await obtenerDolarMep()  // obtengo la cotizacion actual del dolar mep
       const dolarMepFormateado = formatearMoneda(dolarMep)
       console.log(dolarMepFormateado)
-      if (!dolarMep) {console.log("no se pudo obtener la cotizacion de dolar Mep de dolarApi"); return} //early return if dolarApi call fails
+      if (!dolarMep) { console.log("no se pudo obtener la cotizacion de dolar Mep de dolarApi"); return } //early return if dolarApi call fails
       const listaRendimientosOn = []
       for (const empresa of onsAAA) {
         const onPorEmpresa = []
@@ -105,7 +112,7 @@ function App() {
         }
         listaRendimientosOn.push({ [empresa.empresa]: onPorEmpresa })
       }
-      setRendimientoOns(listaRendimientosOn)
+      setRendimientoOnsPesos(listaRendimientosOn)
     }
     else console.log("No se pudo obtener los datos de mercado de las ON de BYMA")
   }
@@ -121,9 +128,12 @@ function App() {
   return (
     <>
 
+      <PriceToggle precio={tipoPrecio} setPrecio={setTipoPrecio} />
       <button type='button' className="manage-history-buttons" onClick={() => getOnListTirDolares()} > Calculate Tir ON en dolares </button>
-      <button type='button' className="manage-history-buttons" onClick={() => getOnListTirPesos()} > Calculate Tir ON en Pesos </button>
       {cargando ? <SkeletonCurva /> : <CurvaRendimiento datos={rendimientoOns} />}
+
+      <button type='button' className="manage-history-buttons" onClick={() => getOnListTirPesos()} > Calculate Tir ON en Pesos </button>
+      {cargandoPesos ? <SkeletonCurva /> : <CurvaRendimiento datos={rendimientoOnsPesos} />}
 
 
     </>

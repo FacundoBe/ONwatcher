@@ -142,7 +142,7 @@ const CurvaRendimiento = ({ datos }) => {
          <p style={{ margin: '0', fontSize: '13px' }}> ({data.empresa}) </p>
           <p style={{ margin: '0', fontSize: '13px' }}>Vencimiento: {data.plazoEje} {unidadPlazo}</p>
           <p style={{ margin: '0', fontSize: '13px' }}>TIR: <strong>{data.tir}%</strong></p>
-          <p style={{ margin: '0', fontSize: '13px' }}>Precio: <strong>{data.ultimoPrecio}</strong></p>
+          <p style={{ margin: '0', fontSize: '13px' }}>Precio: <strong>{data.precio}</strong></p>
         </div>
       );
     }
@@ -213,7 +213,7 @@ const CurvaRendimiento = ({ datos }) => {
                 title={on.razon}
                 style={{ fontSize: '11px', backgroundColor: '#fdecea', color: '#d93025', padding: '4px 8px', borderRadius: '4px', border: '1px solid #fad2cf' }}
               >
-                <strong>{on.tiker || 'S/T'}</strong> ({on.empresa})
+                <strong>{on.tiker || 'S/T'}</strong> ({on.empresa}) {` Venc.  ${(on.vencimiento/360).toFixed(2)}`}
               </div>
             ))}
           </div>
