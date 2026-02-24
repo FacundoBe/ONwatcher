@@ -1,8 +1,9 @@
+
 /** 
- * @param {string} tiker de la On en byma 
+ * @param {string}  tiker de la On en byma 
  * @param {number}  precio: Precio con coma para los decimales
  * @param {string}  divisa: string con los valores "ARS" o "DOLAR"
- * tipoCambio: si la divisa es ARS va precio del en pesos del dolar, para divisa DOLAR es 1. */
+ * @param tipoCambio: si la divisa es ARS va precio del en pesos del dolar, para divisa DOLAR es 1. */
 
 export async function calculaRendimientoOnPuente(tiker, precio, divisa = "DOLAR", tipoCambio = 1) {
 

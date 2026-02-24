@@ -4,11 +4,12 @@ import { getBymaData } from './services/onData'
 import { calculaRendimientoOnPuente } from './services/calculadoraOnPuente'
 import { onsAAA, resultsOn } from './JSONS/OnsAAA'
 import CurvaRendimiento from './CurvaRendimiento'
-import './App.css'
 import SkeletonCurva from './SkeletonCurva'
 import obtenerDolarMep from './services/dolarMep'
 import { formatearMoneda } from './UTILS/formatearMonedaArg'
 import PriceToggle from './PriceToggle'
+import { TIEMPOESPERA } from './services/constants'
+import './App.css'
 
 function App() {
 
@@ -108,7 +109,7 @@ function App() {
         for (const on of empresa.ons_hard_dollar) {
           const onResults = await getPriceTirDuration(bymaOnsData, on, "ARS", dolarMepFormateado)
           onPorEmpresa.push({ tiker: on, ...onResults })
-          await esperar(500)
+          await esperar(TIEMPOESPERA)
         }
         listaRendimientosOn.push({ [empresa.empresa]: onPorEmpresa })
       }
