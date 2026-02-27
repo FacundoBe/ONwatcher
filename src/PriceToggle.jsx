@@ -12,7 +12,7 @@ const PriceToggle = ({ precio, setPrecio }) => {
     return (
         <div className="switch-container">
             <span className={`label-text ${isVenta ? 'active' : ''}`}>
-                Precio Venta
+                Último Precio
             </span>
 
 
@@ -24,7 +24,7 @@ const PriceToggle = ({ precio, setPrecio }) => {
             </div>
 
             <span className={`label-text ${!isVenta ? 'active' : ''}`}>
-                Último Precio
+                Precio Venta
             </span>
         </div>
     );

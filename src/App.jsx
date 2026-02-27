@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { getBymaData } from './services/onData'
 import { calculaRendimientoOnPuente } from './services/calculadoraOnPuente'
-import { onsAAA, resultsOn } from './JSONS/OnsAAA'
+import { onsAAA } from './JSONS/OnsAAA'
 import CurvaRendimiento from './CurvaRendimiento'
 import SkeletonCurva from './SkeletonCurva'
 import obtenerDolarMep from './services/dolarMep'
@@ -22,7 +22,7 @@ function App() {
   useEffect(() => {
     if (rendimientoOns.length > 0) setCargando(false)
     if (rendimientoOnsPesos.length > 0) setCargandoPesos(false)
-  }, [rendimientoOns])
+  }, [rendimientoOns, rendimientoOnsPesos])
 
   async function obtenerDatosDeByma() {
 
@@ -59,9 +59,9 @@ function App() {
     if (ultimoPrecio != null) {   // if it is null there was no data avaliable from byma for this tiker
       if (ultimoPrecio === 0 && precioVenta === 0) { console.log(`El precio de la ${on} de BYMA es 0`); return }  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
       const price = (tipoPrecio === 'ultimo precio' ? ultimoPrecio : precioVenta)
-      const priceFormated = price.toString().replaceAll(".", ","); 
+      const priceFormated = price.toString().replaceAll(".", ",");
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
-      return { precio: price, vencimiento: vencimiento, tir: tir } 
+      return { precio: price, vencimiento: vencimiento, tir: tir }
     }
     else console.log(`No se pudo obtener la tir de ${on}por que no se accedio al precio revisa el tiker`)
   }
@@ -119,7 +119,8 @@ function App() {
   }
 
 
-  console.log(rendimientoOns)
+  console.log("rend dolares", rendimientoOns)
+  console.log("rend pesos", rendimientoOnsPesos)
 
   async function test() {
     const res = await calculaRendimientoOnPuente('YFCMO', "101", 'DOLAR', 1) //getPriceTirDuration('YFCMD', 'DOLAR', 1)
