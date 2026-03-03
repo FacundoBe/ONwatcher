@@ -104,5 +104,23 @@ export const onsAAA = [
     calificacion: "AAA.ar",
     ons_hard_dollar: ["IRCPO", "IRCJO", "IRCNO", "IRCOO", "IRCFO"],
     lamina_minima: 1
-  }
+  },
+{
+    empresa: "Compañía Mega S.A.",
+    sector: "Energía y Petróleo",
+    calificacion: "AAA.ar",
+    ons_hard_dollar: ["EMC1O",],
+    lamina_minima: 1
+  },
+{
+    empresa: "Oleoductos del Valle S.A.",
+    sector: "Energía y Petróleo",
+    calificacion: "AAA.ar",
+    ons_hard_dollar: ["OLC6D","OLC7D",],
+    lamina_minima: 1
+  },
 ]
+
+
+
+
