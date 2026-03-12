@@ -39,7 +39,7 @@ export const onsAAA = [
     empresa: "OTAMERICA (Ebytem)",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["OTS6O",],
+    ons_hard_dollar: ["OTS6O","OTS3O"],
     lamina_minima: 1
   },
   {
@@ -116,16 +116,31 @@ export const onsAAA = [
     empresa: "Oleoductos del Valle S.A.",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["OLC6D", "OLC7D",],
+    ons_hard_dollar: ["OLC6O", "OLC7O",],
     lamina_minima: 1
   },
   {
     empresa: "Central Puerto S.A.",
     sector: "Energia",
     calificacion: "AA+.ar",
-    ons_hard_dollar: ["NPCCD"],
+    ons_hard_dollar: ["NPCCO"],
     lamina_minima: 1
   },
+  {
+    empresa: "Aeropuertos Argentina 2000.",
+    sector: "Aeropuertos",
+    calificacion: "AA+.ar",
+    ons_hard_dollar: ["ARC1O"],
+    lamina_minima: 1
+  },
+  {
+    empresa: "Telecom Argentina S.A.",
+    sector: "Telecomunicaciones",
+    calificacion: "AA+.ar",
+    ons_hard_dollar: ["TLCMO","TLCOO","TLCQD","TLCUD"],
+    lamina_minima: 1
+  },
+
 
 ]
 
