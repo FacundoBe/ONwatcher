@@ -10,14 +10,14 @@ export const onsAAA = [
     empresa: "YPF",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["YCAMO","YM34O","YM35O","YM37O", "YM38O", "YM39O", "YM40O", "YM41O", "YM42O", "YMCIO", "YMCJO", "YMCXO", "YMCYO", "YMCZO"  ],
+    ons_hard_dollar: ["YCAMO", "YM34O", "YM35O", "YM37O", "YM38O", "YM39O", "YM40O", "YM41O", "YM42O", "YMCIO", "YMCJO", "YMCXO", "YMCYO", "YMCZO"],
     lamina_minima: 1
   },
-{
+  {
     empresa: "YPF Ener. Elec.",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["YFCLO", "YFCMO", ],
+    ons_hard_dollar: ["YFCLO", "YFCMO",],
     lamina_minima: 1
   },
 
@@ -25,7 +25,7 @@ export const onsAAA = [
     empresa: "Pan American Energy (PAE)",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["PN34O", "PN35O","PN36O", "PN37O", "PN38O", "PN41O", "PN42O", "PN43O", "PNXCO", "PNXCD", ],
+    ons_hard_dollar: ["PN34O", "PN35O", "PN36O", "PN37O", "PN38O", "PN41O", "PN42O", "PN43O", "PNXCO", "PNXCD",],
     lamina_minima: 1
   },
   {
@@ -39,7 +39,7 @@ export const onsAAA = [
     empresa: "OTAMERICA (Ebytem)",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: [ "OTS6O",],
+    ons_hard_dollar: ["OTS6O",],
     lamina_minima: 1
   },
   {
@@ -74,7 +74,7 @@ export const onsAAA = [
     empresa: "Loma Negra",
     sector: "Industria y Construcción",
     calificacion: "AAA.ar",
-    ons_hard_dollar: [ "LOC5O", "LOC6O"],
+    ons_hard_dollar: ["LOC5O", "LOC6O"],
     lamina_minima: 1
   },
   {
@@ -105,20 +105,28 @@ export const onsAAA = [
     ons_hard_dollar: ["IRCPO", "IRCJO", "IRCNO", "IRCOO", "IRCFO"],
     lamina_minima: 1
   },
-{
+  {
     empresa: "Compañía Mega S.A.",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
     ons_hard_dollar: ["EMC1O",],
     lamina_minima: 1
   },
-{
+  {
     empresa: "Oleoductos del Valle S.A.",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["OLC6D","OLC7D",],
+    ons_hard_dollar: ["OLC6D", "OLC7D",],
     lamina_minima: 1
   },
+  {
+    empresa: "Central Puerto S.A.",
+    sector: "Energia",
+    calificacion: "AA+.ar",
+    ons_hard_dollar: ["NPCCD"],
+    lamina_minima: 1
+  },
+
 ]
 
 
