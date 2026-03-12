@@ -39,7 +39,7 @@ export const onsAAA = [
     empresa: "OTAMERICA (Ebytem)",
     sector: "Energía y Petróleo",
     calificacion: "AAA.ar",
-    ons_hard_dollar: ["OTS4O","OTS3O","OTS2O"],
+    ons_hard_dollar: ["OT42O","OTS3O","OTS2O"],
     lamina_minima: 1
   },
   {
