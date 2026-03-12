@@ -1,1 +1,1 @@
-export const TIEMPOESPERA = 250
+export const TIEMPOESPERA = 100
