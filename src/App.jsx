@@ -41,7 +41,7 @@ function App() {
     const onData = bymaOnsData.filter(papel => papel?.symbol === on)[0]
     if (onData?.trade != undefined) {
       //console.log(onData)
-      return { ultimoPrecio: onData.trade, precioCompra: onData.bidPrice, precioVenta: onData.offerPrice, vencimiento: onData.daysToMaturity }
+      return { ultimoPrecio: onData.trade, precioCompra: onData.bidPrice, precioVenta: onData.offerPrice, precioAyer: onData.previousSettlementPrice, vencimiento: onData.daysToMaturity }
     }
     else console.log(`No se puedo obtener el precio de ${on} de BYMA revisa el tiker`)
     return null
@@ -53,11 +53,13 @@ function App() {
     // divisa: (string) `las opciones validas son ARS o DOLAR 
     const resultado = obtenerPrecioYDurationDelaOn(bymaOnsData, on)
     if (!resultado) return // early return if the the on info is not found 
-    const { ultimoPrecio, precioVenta, vencimiento } = resultado
+    const { ultimoPrecio, precioVenta, precioAyer, vencimiento } = resultado
     //console.log("Ultimo Precio", ultimoPrecio)
 
     if (ultimoPrecio != null) {   // if it is null there was no data avaliable from byma for this tiker
-      if (ultimoPrecio === 0 && precioVenta === 0) { console.log(`El precio de la ${on} de BYMA es 0`); return }  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
+      if (ultimoPrecio === 0 && precioVenta === 0  && precioAyer === 0  ) { console.log(`El precio de la ${on} de BYMA es 0`); return }  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
+      let precioNoNulo = ultimoPrecio 
+      if (ultimoPrecio === 0 ) precioNoNulo = precioAyer  // si ultimo precio es nulo aqui voy a usar el uktimo precio del dia anterior para que no quede vacia la info// 
       const price = (tipoPrecio === 'ultimo precio' ? ultimoPrecio : precioVenta)
       const priceFormated = price.toString().replaceAll(".", ",");
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
