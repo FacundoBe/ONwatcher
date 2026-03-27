@@ -60,7 +60,7 @@ function App() {
       if (ultimoPrecio === 0 && precioVenta === 0  && precioAyer === 0  ) { console.log(`El precio de la ${on} de BYMA es 0`); return }  // early return for prize zero and precioVenta = 0, on puente calculator API sends 500 error o
       let precioNoNulo = ultimoPrecio 
       if (ultimoPrecio === 0 ) precioNoNulo = precioAyer  // si ultimo precio es nulo aqui voy a usar el uktimo precio del dia anterior para que no quede vacia la info// 
-      const price = (tipoPrecio === 'ultimo precio' ? ultimoPrecio : precioVenta)
+      const price = (tipoPrecio === 'ultimo precio' ? precioNoNulo : precioVenta)
       const priceFormated = price.toString().replaceAll(".", ",");
       const tir = await calculaRendimientoOnPuente(on, priceFormated, divisa, tipoCambio)
       return { precio: price, vencimiento: vencimiento, tir: tir }
